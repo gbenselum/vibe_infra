@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  # It's good practice to deploy all application components in the same namespace.
+  # This should match the namespace in your Argo CD Application resource.
+  namespace: my-gitops-app
+data:
+  grafana.ini: |
+    [auth.anonymous]
+    enabled = true
+    org_name = Main Org.
+    org_role = Viewer
+    [users]
+    allow_sign_up = false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: my-gitops-app
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        volumeMounts:
+        - name: config-volume
+          mountPath: "/etc/grafana/grafana.ini"
+          subPath: grafana.ini
+      volumes:
+      - name: config-volume
+        configMap:
+          name: grafana-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-service
+  namespace: my-gitops-app
+spec:
+  selector:
+    app: grafana
+  ports:
+    - protocol: TCP
+      # The port the service will be available on within the cluster
+      port: 80
+      # The port the Grafana container is listening on
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: my-gitops-app
+  annotations:
+    # For this Ingress to work, you need an Ingress controller.
+    # On Minikube, you can enable it by running: `minikube addons enable ingress`
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: "grafana.example.com" # <-- IMPORTANT: Change this to your desired hostname and update your DNS or /etc/hosts file.
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana-service
+            port:
+              number: 80
