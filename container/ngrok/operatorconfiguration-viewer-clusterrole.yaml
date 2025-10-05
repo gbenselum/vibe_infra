@@ -1,0 +1,29 @@
+# Source: ngrok-operator/templates/rbac/operatorconfiguration_viewer_role.yaml
+# permissions for end users to view operatorconfigurations
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    helm.sh/chart: ngrok-operator-0.20.0
+    app.kubernetes.io/name: ngrok-operator
+    app.kubernetes.io/instance: ngrok-operator
+    app.kubernetes.io/version: "0.18.0"
+    app.kubernetes.io/part-of: ngrok-operator
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: rbac
+  name: ngrok-operator-operatorconfiguration-viewer-role
+rules:
+- apiGroups:
+  - ngrok.k8s.ngrok.com
+  resources:
+  - operatorconfigurations
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ngrok.k8s.ngrok.com
+  resources:
+  - operatorconfigurations/status
+  verbs:
+  - get

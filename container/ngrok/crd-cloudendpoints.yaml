@@ -1,0 +1,173 @@
+# Source: ngrok-operator/templates/crds/ngrok.k8s.ngrok.com_cloudendpoints.yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.14.0
+  name: cloudendpoints.ngrok.k8s.ngrok.com
+spec:
+  group: ngrok.k8s.ngrok.com
+  names:
+    kind: CloudEndpoint
+    listKind: CloudEndpointList
+    plural: cloudendpoints
+    shortNames:
+    - clep
+    singular: cloudendpoint
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.id
+      name: ID
+      type: string
+    - jsonPath: .spec.url
+      name: URL
+      type: string
+    - jsonPath: .spec.trafficPolicyName
+      name: Traffic Policy
+      type: string
+    - jsonPath: .spec.bindings
+      name: Bindings
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: CloudEndpoint is the Schema for the cloudendpoints API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of
+an object.
+              Servers should convert recognized schemas to the latest internal v
+alue, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-arc
+hitecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object
+represents.
+              Servers may infer this from the endpoint the client submits reques
+ts to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-arc
+hitecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CloudEndpointSpec defines the desired state of CloudEnd
+point
+            properties:
+              bindings:
+                description: |-
+                  Bindings is the list of Binding IDs to associate with the endp
+oint
+                  Accepted values are "public", "internal", or "kubernetes"
+                items:
+                  type: string
+                type: array
+              description:
+                default: Created by the ngrok-operator
+                description: Human-readable description of this cloud endpoint
+                type: string
+              metadata:
+                default: '{"owned-by":"ngrok-operator"}'
+                description: String of arbitrary data associated with the object
+ in
+                  the ngrok API/Dashboard
+                type: string
+              poolingEnabled:
+                description: |-
+                  Controls whether or not the Cloud Endpoint should allow poolin
+g with other
+                  Cloud Endpoints sharing the same URL. When Cloud Endpoints are
+ pooled, any requests
+                  going to the URL for the pooled endpoint will be distributed a
+mong all Cloud Endpoints
+                  in the pool. A URL can only be shared across multiple Cloud En
+dpoints if they all have pooling enabled.
+                type: boolean
+              trafficPolicy:
+                description: Allows inline definition of a TrafficPolicy object
+                properties:
+                  policy:
+                    description: The raw json encoded policy that was applied to
+ the
+                      ngrok API
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                type: object
+              trafficPolicyName:
+                description: Reference to the TrafficPolicy resource to attach t
+o
+                  the Cloud Endpoint
+                type: string
+              url:
+                description: |-
+                  The unique URL for this cloud endpoint. This URL is the public
+ address. The following formats are accepted
+                  Domain - example.org
+                      When using the domain format you are only defining the dom
+ain. The scheme and port will be inferred.
+                  Origin - https://example.ngrok.app or https://example.ngrok.ap
+p:443 or tcp://1.tcp.ngrok.io:12345 or tls://example.ngrok.app
+                      When using the origin format you are defining the protocol
+, domain and port. HTTP endpoints accept ports 80 or 443 with respective protoco
+l.
+                  Scheme (shorthand) - https:// or tcp:// or tls:// or http://
+                      When using scheme you are defining the protocol and will r
+eceive back a randomly assigned ngrok address.
+                  Empty - ``
+                      When empty your endpoint will default to be https and rece
+ive back a randomly assigned ngrok address.
+                  Internal - some.domain.internal
+                      When ending your url with .internal, an internal endpoint
+will be created. nternal Endpoints cannot be accessed directly, but rather
+                      can only be accessed using the forward-internal traffic po
+licy action.
+                type: string
+            required:
+            - url
+            type: object
+          status:
+            description: CloudEndpointStatus defines the observed state of Cloud
+Endpoint
+            properties:
+              domain:
+                description: |-
+                  Domain is the DomainStatus object associated with this endpoin
+t.
+                  For internal endpoints, this will be nil.
+                properties:
+                  cnameTarget:
+                    description: CNAMETarget is the CNAME target for the domain
+                    type: string
+                  domain:
+                    description: Domain is the domain that was reserved
+                    type: string
+                  id:
+                    description: ID is the unique identifier of the domain
+                    type: string
+                  region:
+                    description: Region is the region in which the domain was cr
+eated
+                    type: string
+                  uri:
+                    description: URI of the reserved domain API resource
+                    type: string
+                type: object
+              id:
+                description: ID is the unique identifier for this endpoint
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

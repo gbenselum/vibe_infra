@@ -1,0 +1,112 @@
+# Source: ngrok-operator/templates/controller-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    helm.sh/chart: ngrok-operator-0.20.0
+    app.kubernetes.io/name: ngrok-operator
+    app.kubernetes.io/instance: ngrok-operator
+    app.kubernetes.io/version: "0.18.0"
+    app.kubernetes.io/part-of: ngrok-operator
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/component: controller
+  name: ngrok-operator-manager
+  namespace: ngrok-operator
+  annotations:
+    checksum/controller-role: e108215aa508729e0a9d9a12bed3b67d1fef8007aecee1e86b
+8d3ea8f872b829
+    checksum/rbac: 2e07378e8ddca5d310017d13d9b93eaa8aab75c0652d8f28edea5fd4518d9
+7ad
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ngrok-operator
+      app.kubernetes.io/instance: ngrok-operator
+      app.kubernetes.io/component: controller
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: '8080'
+        prometheus.io/scrape: 'true'
+        checksum/controller-role: e108215aa508729e0a9d9a12bed3b67d1fef8007aecee1
+e86b8d3ea8f872b829
+        checksum/rbac: 2e07378e8ddca5d310017d13d9b93eaa8aab75c0652d8f28edea5fd45
+18d97ad
+        checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f980
+5daca546b
+      labels:
+        app.kubernetes.io/name: ngrok-operator
+        app.kubernetes.io/instance: ngrok-operator
+        app.kubernetes.io/component: controller
+    spec:
+      affinity:
+        podAffinity:
+
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: ngrok-operator
+                    app.kubernetes.io/name: ngrok-operator
+                    app.kubernetes.io/component: controller
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+
+
+      serviceAccountName: ngrok-operator
+      containers:
+      - name: ngrok-operator
+        image: docker.io/ngrok/ngrok-operator:0.18.0
+        imagePullPolicy: IfNotPresent
+        command:
+        - /ngrok-operator
+        args:
+        - api-manager
+        - --release-name=ngrok-operator
+        - --default-domain-reclaim-policy=Delete
+        - --enable-feature-ingress=true
+        - --enable-feature-gateway=true
+        - --disable-reference-grants=false
+        - --description="The official ngrok Kubernetes Operator."
+        - --ingress-controller-name=k8s.ngrok.com/ingress-controller
+        - --zap-log-level=info
+        - --zap-stacktrace-level=error
+        - --zap-encoder=json
+        - --health-probe-bind-address=:8081
+        - --metrics-bind-address=:8080
+        - --election-id=ngrok-operator-leader
+        - --manager-name=ngrok-operator-manager
+        - --cluster-domain=svc.cluster.local
+        securityContext:
+          allowPrivilegeEscalation: false
+        env:
+        - name: NGROK_API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: API_KEY
+              name: ngrok-operator-credentials
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: HELM_RELEASE_NAME
+          value: "ngrok-operator"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits: {}
+          requests: {}

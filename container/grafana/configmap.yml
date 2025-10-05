@@ -4,7 +4,7 @@ metadata:
   name: grafana-config
   # It's good practice to deploy all application components in the same namespace.
   # This should match the namespace in your Argo CD Application resource.
-  namespace: my-gitops-app
+  namespace: grafana
 data:
   grafana.ini: |
     [auth.anonymous]
