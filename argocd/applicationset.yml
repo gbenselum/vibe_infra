@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: gitops-apps
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/your-username/your-repo.git # <-- IMPORTANT: Change this to your repository URL
+      revision: install
+      directories:
+      - path: container/*
+  template:
+    metadata:
+      name: '{{path.basename}}'
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/your-username/your-repo.git # <-- IMPORTANT: Change this to your repository URL
+        targetRevision: install
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{path.basename}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
