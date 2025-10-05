@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  # It's good practice to deploy all application components in the same namespace.
+  # This should match the namespace in your Argo CD Application resource.
+  namespace: my-gitops-app
+data:
+  grafana.ini: |
+    [auth.anonymous]
+    enabled = true
+    org_name = Main Org.
+    org_role = Viewer
+    [users]
+    allow_sign_up = false

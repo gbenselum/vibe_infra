@@ -1,0 +1,17 @@
+# This headless service is required for Vault's internal clustering communication.
+# The StatefulSet uses this service to create stable DNS records for each pod.
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-internal
+  namespace: my-gitops-app
+spec:
+  # clusterIP: None makes this a headless service.
+  clusterIP: None
+  selector:
+    app: vault
+  ports:
+    - name: api
+      port: 8200
+    - name: cluster
+      port: 8201

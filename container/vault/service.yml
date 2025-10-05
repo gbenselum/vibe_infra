@@ -1,0 +1,14 @@
+# This service provides a stable endpoint for accessing the Vault API.
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-service
+  namespace: my-gitops-app
+spec:
+  selector:
+    app: vault
+  ports:
+    - protocol: TCP
+      port: 8200
+      targetPort: 8200
+      name: api

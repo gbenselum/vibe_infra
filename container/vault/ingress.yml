@@ -1,0 +1,22 @@
+# This Ingress exposes the Vault UI to the outside world.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vault-ingress
+  namespace: my-gitops-app
+  annotations:
+    # For this Ingress to work, you need an Ingress controller.
+    # On Minikube, you can enable it by running: `minikube addons enable ingress`
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: "vault.example.com" # <-- IMPORTANT: Change this to your desired hostname and update your DNS or /etc/hosts file.
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vault-service
+                port:
+                  number: 8200

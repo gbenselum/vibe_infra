@@ -1,0 +1,28 @@
+# This file contains the necessary manifests to deploy a single-node, persistent
+# HashiCorp Vault instance using the Raft storage backend.
+#
+# IMPORTANT: After deploying, Vault must be manually initialized and unsealed.
+# 1. Exec into the vault-0 pod: `kubectl exec -it vault-0 -n my-gitops-app -- /bin/sh`
+# 2. Initialize Vault: `vault operator init`
+#    - Save the unseal keys and initial root token securely.
+# 3. Unseal Vault using the required number of keys: `vault operator unseal <unseal_key>`
+#
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-config
+  namespace: my-gitops-app
+data:
+  vault.hcl: |
+    ui = true
+    storage "raft" {
+      path = "/vault/data"
+      node_id = "${HOSTNAME}"
+    }
+    listener "tcp" {
+      address = "0.0.0.0:8200"
+      tls_disable = "true"
+    }
+    api_addr = "http://${HOSTNAME}.vault-internal:8200"
+    cluster_addr = "https://${HOSTNAME}.vault-internal:8201"

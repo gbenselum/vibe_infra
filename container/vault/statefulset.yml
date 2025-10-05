@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vault
+  namespace: my-gitops-app
+spec:
+  # The serviceName must match the name of the headless service created below.
+  serviceName: "vault-internal"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      containers:
+        - name: vault
+          image: hashicorp/vault:latest
+          ports:
+            - containerPort: 8200
+              name: api
+            - containerPort: 8201
+              name: cluster
+          env:
+            # This sets the pod's hostname, which is used by the vault.hcl config.
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: vault-config
+              mountPath: /vault/config/
+            - name: vault-data
+              mountPath: /vault/data
+          # IPC_LOCK capability is required for Vault to prevent memory from being swapped to disk.
+          securityContext:
+            capabilities:
+              add:
+                - IPC_LOCK
+      volumes:
+        - name: vault-config
+          configMap:
+            name: vault-config
+  # This template creates a PersistentVolumeClaim for each pod in the StatefulSet.
+  volumeClaimTemplates:
+    - metadata:
+        name: vault-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
