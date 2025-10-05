@@ -27,6 +27,34 @@ sudo dnf -y install terraform
 echo "Installing Ansible..."
 sudo dnf -y install ansible
 
+# Install kubectl
+echo "Installing kubectl..."
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
+enabled=1
+gpgcheck=1
+gpgkey=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
+exclude=kubelet kubeadm kubectl-cni
+EOF
+sudo dnf install -y kubectl
+
+# Install Minikube
+echo "Installing Minikube..."
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+rm minikube-linux-amd64
+
+# Start Minikube
+echo "Starting Minikube cluster..."
+minikube start --driver=podman
+
+# Install ArgoCD on Minikube
+echo "Installing ArgoCD on Minikube..."
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
 # Install ArgoCD CLI
 echo "Installing ArgoCD CLI..."
 # Source: https://argo-cd.readthedocs.io/en/stable/cli_installation/
