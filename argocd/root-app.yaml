@@ -1,22 +1,40 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root
+  name: root-applications
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
-  source:
-    repoURL: https://github.com/gbenselum/vibe_infra.git
-    path: argocd
-    targetRevision: install
+  # The 'root' app will deploy resources to its own namespace (argocd)
+  # which are the other Application manifests.
   destination:
+    namespace: argocd 
     server: https://kubernetes.default.svc
-    namespace: argocd
+  source:
+    # -----------------------------------------------------------------
+    # CHANGE 1: Update the path to point to the directory containing 
+    # the child application manifests (e.g., app-frontend.yaml, etc.).
+    # Assuming this folder is 'container' at the root of the repo.
+    path: container 
+    # -----------------------------------------------------------------
+    repoURL: https://github.com/gbenselum/vibe_infra.git
+    # -----------------------------------------------------------------
+    # CHANGE 2: Update targetRevision to 'main' branch as requested.
+    targetRevision: main 
+    # -----------------------------------------------------------------
+  
+  # The 'sources: []' array is incorrect if you are using 'source' (singular).
+  # Delete it if you are not using the 'sources' (plural) feature.
+  # project: default (This is correct, assuming you use the 'default' AppProject)
+  project: default
+  
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
-    - CreateNamespace=true
+      # This is correct for the destination namespace of the child apps,
+      # but the root app deploys to 'argocd', which should already exist.
+      # It's safest to leave this, or use it on the child apps themselves.
+      - CreateNamespace=true
