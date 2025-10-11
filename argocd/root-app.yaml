@@ -13,15 +13,13 @@ spec:
     server: https://kubernetes.default.svc
   source:
     # -----------------------------------------------------------------
-    # CHANGE 1: Update the path to point to the directory containing 
-    # the child application manifests (e.g., app-frontend.yaml, etc.).
-    # Assuming this folder is 'container' at the root of the repo.
-    path: container 
+    # The root app should point to the directory containing the ApplicationSet
+    path: argocd
     # -----------------------------------------------------------------
     repoURL: https://github.com/gbenselum/vibe_infra.git
     # -----------------------------------------------------------------
-    # CHANGE 2: Update targetRevision to 'main' branch as requested.
-    targetRevision: main 
+    # The user wants to deploy from the 'install' branch.
+    targetRevision: install
     # -----------------------------------------------------------------
   
   # The 'sources: []' array is incorrect if you are using 'source' (singular).
