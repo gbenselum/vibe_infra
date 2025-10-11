@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: vault-service
-  namespace: my-gitops-app
+  namespace: vault
 spec:
   selector:
     app: vault
