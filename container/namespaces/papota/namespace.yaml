@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: papota
+  # Optional: Add an annotation to ensure the Namespace is created first
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2" 
