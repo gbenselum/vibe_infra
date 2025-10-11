@@ -12,7 +12,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: vault-config
-  namespace: my-gitops-app
+  namespace: vault
 data:
   vault.hcl: |
     ui = true
