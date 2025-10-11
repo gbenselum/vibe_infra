@@ -6,7 +6,7 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://github.com/your-username/your-repo.git # <-- IMPORTANT: Change this to your repository URL
+      repoURL: https://github.com/gbenselum/vibe-infra.git # <-- IMPORTANT: Change this to your repository URL
       revision: install
       directories:
       - path: container/*
@@ -17,7 +17,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/your-username/your-repo.git # <-- IMPORTANT: Change this to your repository URL
+        repoURL:  https://github.com/gbenselum/vibe-infra.git # <-- IMPORTANT: Change this to your repository URL
         targetRevision: install
         path: '{{path}}'
       destination:
