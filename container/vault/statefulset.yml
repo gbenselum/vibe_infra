@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: vault
-  namespace: my-gitops-app
+  namespace: vault
 spec:
   # The serviceName must match the name of the headless service created below.
   serviceName: "vault-internal"
