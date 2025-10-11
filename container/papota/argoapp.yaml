@@ -1,0 +1,14 @@
+project: default
+source:
+  repoURL: https://github.com/gbenselum/vibe_infra.git
+  path: container/papota
+  targetRevision: main
+destination:
+  server: https://kubernetes.default.svc
+  namespace: papota
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  syncOptions:
+    - CreateNamespace=true
