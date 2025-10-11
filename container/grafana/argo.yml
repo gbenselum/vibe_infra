@@ -1,0 +1,14 @@
+project: default
+source:
+  repoURL: https://github.com/gbenselum/vibe_infra.git
+  path: container/grafana
+  targetRevision: main
+destination:
+  server: https://kubernetes.default.svc
+  namespace: grafana
+syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
+  syncOptions:
+    - CreateNamespace=true
